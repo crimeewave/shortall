@@ -1,0 +1,101 @@
+#SPG-PACKAGE
+#CONFIG-START
+{
+  "name": "neofetch",
+  "version": "1.0.0",
+  "description": "System information tool",
+  "author": "Shortall Team",
+  "main_script": "main.py",
+  "dependencies": ["psutil"]
+}
+#CONFIG-END
+#SCRIPT-START
+import platform
+import os
+import sys
+import psutil
+from datetime import datetime
+
+def get_os_info():
+    system = platform.system()
+    if system == "Windows":
+        return f"Windows {platform.release()}"
+    elif system == "Linux":
+        return f"Linux {platform.release()}"
+    else:
+        return platform.platform()
+
+def get_uptime():
+    boot_time = psutil.boot_time()
+    now = datetime.now()
+    uptime_seconds = now.timestamp() - boot_time
+    
+    hours = int(uptime_seconds // 3600)
+    minutes = int((uptime_seconds % 3600) // 60)
+    return f"{hours}h {minutes}m"
+
+def get_memory_info():
+    memory = psutil.virtual_memory()
+    used_gb = memory.used / (1024 ** 3)
+    total_gb = memory.total / (1024 ** 3)
+    return f"{used_gb:.1f}GB / {total_gb:.1f}GB"
+
+def get_disk_info():
+    disk = psutil.disk_usage('/')
+    used_gb = disk.used / (1024 ** 3)
+    total_gb = disk.total / (1024 ** 3)
+    return f"{used_gb:.1f}GB / {total_gb:.1f}GB"
+
+def get_cpu_info():
+    return f"{psutil.cpu_percent(interval=1)}%"
+
+def get_hostname():
+    return platform.node()
+
+def get_username():
+    return os.getenv('USERNAME') or os.getenv('USER')
+
+def display_logo():
+    logo = [
+        "       .-.       ",
+        "      |   |      ",
+        "      |   |      ",
+        "      |   |      ",
+        "      |   |      ",
+        "      |   |      ",
+        "      |   |      ",
+        "      |   |      ",
+        "      '---'      "
+    ]
+    return logo
+
+def main():
+    print()
+    
+    logo = display_logo()
+    info_lines = [
+        f"",
+        f"",
+        f"{get_username()}@{get_hostname()}",
+        f"-----------",
+        f"OS: {get_os_info()}",
+        f"Uptime: {get_uptime()}",
+        f"CPU: {get_cpu_info()}",
+        f"Memory: {get_memory_info()}",
+        f"Disk: {get_disk_info()}",
+        f"Python: {platform.python_version()}",
+        f""
+    ]
+    
+    max_logo_height = max(len(logo), len(info_lines))
+    
+    for i in range(max_logo_height):
+        logo_line = logo[i] if i < len(logo) else " " * 16
+        info_line = info_lines[i] if i < len(info_lines) else ""
+        print(f"{logo_line}    {info_line}")
+    
+    print()
+
+if __name__ == "__main__":
+    main()
+#SCRIPT-END
